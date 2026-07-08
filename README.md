@@ -1,11 +1,11 @@
 # ApplicationManager
 
-A lightweight macOS menu bar app that keeps your personal utilities in one place. It automatically discovers `.app` bundles in the **Menu Bar Applications** folder (the parent directory of this project) and lets you launch them with one click.
+A lightweight macOS menu bar app that keeps your personal utilities in one place. It automatically discovers `.app` bundles in the parent directory of this project — whatever it's named or wherever it lives — and lets you launch them with one click.
 
 ## Features
 
 - Menu bar only (no dock icon)
-- Auto-discovers apps in `Menu Bar Applications/` and sibling project folders (e.g. `Caffeinated/build/Caffeinated.app`)
+- Auto-discovers apps in the parent folder and sibling project folders (e.g. `Caffeinated/build/Caffeinated.app`)
 - One-click launch for apps in your library
 - Running apps show a checkmark; click again to turn them off
 - Add or remove apps from the menu
@@ -38,23 +38,19 @@ open /Applications/ApplicationManager.app
 |--------|--------|
 | Click menu bar icon | Open your app library (refreshes discovery) |
 | Click an app | Launch it (or quit if already running) |
-| Refresh Library | Re-scan Menu Bar Applications folder |
+| Refresh Library | Re-scan the parent folder |
 | Add Application… | Pick a `.app` bundle to add manually |
 | Manage Library… | Remove apps from the list |
-| Reveal Menu Bar Applications Folder | Open the parent folder in Finder |
 
 ## How discovery works
 
-The app looks for a folder named **Menu Bar Applications**:
-
-1. Walks up from the running app bundle (works when launched from `build/ApplicationManager.app` inside the project)
-2. Falls back to `~/Projects/Menu Bar Applications`
+The app locates the folder that contains this project by walking up from the running app bundle: `<parent>/ApplicationManager/build/ApplicationManager.app` → `<parent>`. The folder's name doesn't matter, so moving or renaming the parent folder keeps working.
 
 It then scans that folder for `.app` bundles, including inside sibling project folders (up to 5 levels deep), so paths like:
 
-- `Menu Bar Applications/SomeApp.app`
-- `Menu Bar Applications/Caffeinated/build/Caffeinated.app`
-- `Menu Bar Applications/QuitAll/build/Build/Products/Release/QuitAll.app`
+- `<parent>/SomeApp.app`
+- `<parent>/Caffeinated/build/Caffeinated.app`
+- `<parent>/QuitAll/build/Build/Products/Release/QuitAll.app`
 
 are found automatically. ApplicationManager excludes itself from the list.
 

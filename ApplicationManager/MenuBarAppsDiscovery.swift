@@ -1,54 +1,26 @@
 import Foundation
 
 enum MenuBarAppsDiscovery {
-    private static let folderName = "Menu Bar Applications"
     private static let maxSearchDepth = 5
 
+    /// The folder holding all the sibling app projects: the parent of the project folder
+    /// that contains this app bundle, wherever that lives on disk.
+    /// Handles `<parent>/<project>/build/App.app` and `<parent>/<project>/App.app`.
     static func menuBarApplicationsFolder() -> URL? {
-        var url = Bundle.main.bundleURL.deletingLastPathComponent()
-        for _ in 0..<8 {
-            if url.lastPathComponent == folderName {
-                return url
-            }
-            let parent = url.deletingLastPathComponent()
-            if parent.path == url.path {
-                break
-            }
-            url = parent
+        var projectFolder = Bundle.main.bundleURL.deletingLastPathComponent()
+        if projectFolder.lastPathComponent == "build" {
+            projectFolder = projectFolder.deletingLastPathComponent()
         }
 
-        if let parent = parentOfContainingProject() {
-            return parent
+        let parent = projectFolder.deletingLastPathComponent()
+        guard parent.path != projectFolder.path else { return nil }
+
+        var isDirectory: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: parent.path, isDirectory: &isDirectory),
+              isDirectory.boolValue else {
+            return nil
         }
-
-        let fallback = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("Projects/\(folderName)", isDirectory: true)
-        if FileManager.default.fileExists(atPath: fallback.path) {
-            return fallback
-        }
-
-        return nil
-    }
-
-    /// Parent of the project folder that contains this app (e.g. `ApplicationManager/build` → `Menu Bar Applications`).
-    private static func parentOfContainingProject() -> URL? {
-        var url = Bundle.main.bundleURL.deletingLastPathComponent()
-        for _ in 0..<8 {
-            if url.lastPathComponent == "build" {
-                let projectFolder = url.deletingLastPathComponent()
-                let parent = projectFolder.deletingLastPathComponent()
-                if parent.path != projectFolder.path {
-                    return parent
-                }
-            }
-
-            let parent = url.deletingLastPathComponent()
-            if parent.path == url.path {
-                break
-            }
-            url = parent
-        }
-        return nil
+        return parent
     }
 
     static func discoverApps() -> [LibraryApp] {
