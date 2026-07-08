@@ -6,6 +6,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var config = LibraryConfig(apps: [])
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        LaunchAtLogin.syncAtStartup()
         reloadLibrary()
 
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
@@ -60,6 +61,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             action: #selector(refreshLibrary),
             keyEquivalent: "r"
         ).target = self
+
+        let loginItem = manageMenu.addItem(
+            withTitle: "Launch at Login",
+            action: #selector(toggleLaunchAtLogin),
+            keyEquivalent: ""
+        )
+        loginItem.target = self
+        loginItem.state = LaunchAtLogin.isEnabled ? .on : .off
 
         if !config.apps.isEmpty {
             manageMenu.addItem(.separator())
@@ -197,6 +206,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         LibraryStore.save(config)
         reloadLibrary()
         showMenu()
+    }
+
+    @objc private func toggleLaunchAtLogin() {
+        do {
+            try LaunchAtLogin.setEnabled(!LaunchAtLogin.isEnabled)
+        } catch {
+            showAlert(
+                title: "Launch at Login Failed",
+                message: "Could not update the login item:\n\(error.localizedDescription)"
+            )
+        }
     }
 
     @objc private func refreshLibrary() {
