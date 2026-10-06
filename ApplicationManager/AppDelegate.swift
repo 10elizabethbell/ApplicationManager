@@ -146,8 +146,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             return
         }
 
-        let configuration = NSWorkspace.OpenConfiguration()
-        configuration.activates = true
+        let configuration: NSWorkspace.OpenConfiguration
+        if MenuBarOnlyApps.handles(app) {
+            configuration = MenuBarOnlyApps.launchConfiguration(for: app)
+        } else {
+            configuration = NSWorkspace.OpenConfiguration()
+            configuration.activates = true
+        }
 
         NSWorkspace.shared.openApplication(at: app.url, configuration: configuration) { _, error in
             if let error {

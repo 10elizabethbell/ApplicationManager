@@ -56,6 +56,17 @@ are found automatically. ApplicationManager excludes itself from the list.
 
 Discovered apps are merged with your saved library on each menu open. Use **Refresh Library** after building a new app.
 
+## Menu-bar-only apps
+
+Some third-party apps outside the projects folder are built in (see `MenuBarOnlyApps.swift`) and appear in the library when installed. Currently: **Wispr Flow**.
+
+When launched from ApplicationManager they run in the menu bar only — no dock icon, no main window:
+
+- The launch carries a login-item Apple event, so Electron reports `wasOpenedAtLogin` and Wispr Flow skips opening its hub window.
+- Before launching, Wispr Flow's own "Hide app in dock" pref (`prefs.user.hideAppInDock` in `~/Library/Application Support/Wispr Flow/config.json`) is turned on. Without it, Wispr re-shows its dock icon on startup.
+
+Opening the Wispr hub from its own menu bar icon still shows the dock icon while the hub window is open.
+
 ## Library config
 
 Manual additions and removals are stored at:

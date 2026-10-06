@@ -39,8 +39,10 @@ swiftc \
     "$SRC_DIR/MenuBarSymbolDiscovery.swift" \
     "$SRC_DIR/MenuBarAppsDiscovery.swift" \
     "$SRC_DIR/LaunchAtLogin.swift" \
+    "$SRC_DIR/MenuBarOnlyApps.swift" \
     -framework AppKit \
-    -framework ServiceManagement
+    -framework ServiceManagement \
+    -framework Carbon
 
 cp "$SRC_DIR/Info.plist" "$CONTENTS_DIR/Info.plist"
 

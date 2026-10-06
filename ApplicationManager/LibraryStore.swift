@@ -52,7 +52,7 @@ enum LibraryStore {
             uniqueKeysWithValues: merged.apps.enumerated().map { (identityKey(for: $0.element), $0.offset) }
         )
 
-        for discovered in MenuBarAppsDiscovery.discoverApps() {
+        for discovered in MenuBarAppsDiscovery.discoverApps() + MenuBarOnlyApps.installedApps() {
             let key = identityKey(for: discovered)
             guard !excluded.contains(key) else { continue }
 
