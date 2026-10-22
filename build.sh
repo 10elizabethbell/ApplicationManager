@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 APP_NAME="ApplicationManager"
 EXEC_NAME="ApplicationManager"
+SWIFT_BIN="appmanager"
 BUILD_DIR="$ROOT/build"
 APP_DIR="$BUILD_DIR/$APP_NAME.app"
 CONTENTS_DIR="$APP_DIR/Contents"
@@ -30,7 +31,7 @@ mkdir -p "$MACOS_DIR"
 
 swiftc \
     -O \
-    -o "$MACOS_DIR/$EXEC_NAME" \
+    -o "$MACOS_DIR/$SWIFT_BIN" \
     "$SRC_DIR/main.swift" \
     "$SRC_DIR/AppDelegate.swift" \
     "$SRC_DIR/LibraryApp.swift" \
@@ -43,6 +44,10 @@ swiftc \
     -framework AppKit \
     -framework ServiceManagement \
     -framework Carbon
+
+# The bundle executable is a compiled C launcher that posix_spawns the Swift
+# binary (see launcher.c for why it must spawn rather than exec).
+clang -O2 -Wall -o "$MACOS_DIR/$EXEC_NAME" "$ROOT/launcher.c"
 
 cp "$SRC_DIR/Info.plist" "$CONTENTS_DIR/Info.plist"
 
@@ -57,6 +62,8 @@ for key_value in \
     /usr/libexec/PlistBuddy -c "Set :$key $value" "$PLIST" 2>/dev/null || \
         /usr/libexec/PlistBuddy -c "Add :$key string $value" "$PLIST"
 done
+
+codesign --force --deep --sign - "$APP_DIR"
 
 echo "Built: $APP_DIR"
 echo "Run with: open \"$APP_DIR\""
